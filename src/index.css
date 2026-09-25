@@ -1,0 +1,201 @@
+@import "tailwindcss";
+
+/* ================================================
+   KOREVIA LABS — Design System
+   Premium dark technology aesthetic
+   ================================================ */
+
+@theme {
+  /* --- Color Palette --- */
+  --color-bg-primary: #08090d;
+  --color-bg-secondary: #0e1018;
+  --color-bg-tertiary: #141621;
+  --color-bg-card: #12141f;
+  --color-bg-card-hover: #181b28;
+  --color-bg-elevated: #1a1d2b;
+  
+  --color-border-primary: #1e2132;
+  --color-border-secondary: #282c3e;
+  --color-border-accent: #3b4068;
+  
+  --color-text-primary: #f0f1f5;
+  --color-text-secondary: #9498b0;
+  --color-text-tertiary: #6b6f88;
+  --color-text-muted: #4a4e65;
+  
+  --color-accent-blue: #4f8fff;
+  --color-accent-blue-dim: #2a5cb8;
+  --color-accent-purple: #8b5cf6;
+  --color-accent-cyan: #22d3ee;
+  --color-accent-green: #34d399;
+  --color-accent-amber: #fbbf24;
+  
+  --color-gradient-start: #4f8fff;
+  --color-gradient-mid: #8b5cf6;
+  --color-gradient-end: #22d3ee;
+  
+  /* --- Typography --- */
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-heading: 'Outfit', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  
+  /* --- Spacing Scale --- */
+  --spacing-section: 7rem;
+  --spacing-section-sm: 4rem;
+  
+  /* --- Container --- */
+  --container-max: 1280px;
+  --container-narrow: 960px;
+  --container-wide: 1440px;
+  
+  /* --- Animations --- */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-circ: cubic-bezier(0.85, 0, 0.15, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 500ms;
+}
+
+/* ================================================
+   Base Styles
+   ================================================ */
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  letter-spacing: -0.02em;
+}
+
+::selection {
+  background-color: color-mix(in srgb, var(--color-accent-blue) 30%, transparent);
+  color: var(--color-text-primary);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-secondary);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-accent);
+}
+
+/* ================================================
+   Utility Classes
+   ================================================ */
+
+.container-main {
+  max-width: var(--container-max);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .container-main {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+.container-narrow {
+  max-width: var(--container-narrow);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+.bg-size-200 {
+  background-size: 200% auto;
+}
+
+.bg-pos-0 {
+  background-position: 0% center;
+}
+
+.bg-pos-100 {
+  background-position: 100% center;
+}
+
+.scrollbar-hide {
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, var(--color-gradient-start), var(--color-gradient-mid), var(--color-gradient-end));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-border {
+  position: relative;
+}
+
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, var(--color-border-secondary), var(--color-border-accent), var(--color-border-secondary));
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  pointer-events: none;
+}
+
+.bg-grid {
+  background-image:
+    linear-gradient(to right, var(--color-border-primary) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--color-border-primary) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+.bg-dot-grid {
+  background-image: radial-gradient(circle, var(--color-border-primary) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* Focus styles */
+.focus-ring:focus-visible {
+  outline: 2px solid var(--color-accent-blue);
+  outline-offset: 2px;
+}
+
+/* Reduce motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -15,6 +15,7 @@ const BlogPage = lazy(() => import('./pages/BlogPage').then(m => ({ default: m.B
 const BlogPostPage = lazy(() => import('./pages/BlogPostPage').then(m => ({ default: m.BlogPostPage })));
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage').then(m => ({ default: m.PrivacyPage })));
 const TermsPage = lazy(() => import('./pages/TermsPage').then(m => ({ default: m.TermsPage })));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
 
 function PageLoader() {
   return (
@@ -45,6 +46,7 @@ const router = createBrowserRouter([
       { path: 'blog/:slug', element: <SuspenseWrapper><BlogPostPage /></SuspenseWrapper> },
       { path: 'privacy', element: <SuspenseWrapper><PrivacyPage /></SuspenseWrapper> },
       { path: 'terms', element: <SuspenseWrapper><TermsPage /></SuspenseWrapper> },
+      { path: '*', element: <SuspenseWrapper><NotFoundPage /></SuspenseWrapper> },
     ],
   },
 ]);

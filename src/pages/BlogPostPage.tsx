@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { useParams, Navigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Calendar, Clock, ArrowLeft, ArrowRight } from 'lucide-react';
@@ -93,98 +94,86 @@ export function BlogPostPage() {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.15 }}
-            className="prose prose-invert max-w-none
-              prose-headings:text-text-primary prose-headings:font-bold prose-headings:tracking-tight
-              prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-4
-              prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3
-              prose-p:text-text-secondary prose-p:leading-relaxed prose-p:mb-4
-              prose-strong:text-text-primary prose-strong:font-semibold
-              prose-em:text-text-secondary
-              prose-code:text-accent-blue prose-code:bg-bg-tertiary prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:font-mono
-              prose-ul:text-text-secondary prose-li:mb-1
-              prose-a:text-accent-blue prose-a:no-underline hover:prose-a:underline"
+            className="max-w-none [&_strong]:text-text-primary [&_strong]:font-semibold [&_em]:text-text-secondary
+              [&_code]:text-accent-blue [&_code]:bg-bg-tertiary [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-sm [&_code]:font-mono
+              [&_a]:text-accent-blue [&_a]:no-underline hover:[&_a]:underline"
           >
-            {post.content.split('\n').map((line, i) => {
-              if (line.startsWith('## ')) {
-                return <h2 key={i}>{line.replace('## ', '')}</h2>;
-              }
-              if (line.startsWith('### ')) {
-                return <h3 key={i}>{line.replace('### ', '')}</h3>;
-              }
-              if (line.startsWith('- ')) {
-                return null; // Handled in groups below
-              }
-              if (line.startsWith('**') && line.endsWith('**')) {
-                return <p key={i}><strong>{line.replace(/\*\*/g, '')}</strong></p>;
-              }
-              if (line.startsWith('*') && line.endsWith('*') && !line.startsWith('**')) {
-                return <p key={i}><em>{line.replace(/\*/g, '')}</em></p>;
-              }
-              if (line.trim() === '') return null;
-
-              // Handle bold within text
-              const parts = line.split(/(\*\*[^*]+\*\*)/g);
-              return (
-                <p key={i}>
-                  {parts.map((part, j) => {
-                    if (part.startsWith('**') && part.endsWith('**')) {
-                      return <strong key={j}>{part.replace(/\*\*/g, '')}</strong>;
-                    }
-                    // Handle inline code
-                    const codeParts = part.split(/(`[^`]+`)/g);
-                    return codeParts.map((cp, k) => {
-                      if (cp.startsWith('`') && cp.endsWith('`')) {
-                        return <code key={`${j}-${k}`}>{cp.replace(/`/g, '')}</code>;
-                      }
-                      return <span key={`${j}-${k}`}>{cp}</span>;
-                    });
-                  })}
-                </p>
-              );
-            })}
-
-            {/* Render list items in groups */}
             {(() => {
+              const renderInline = (text: string) => {
+                const parts = text.split(/(\*\*[^*]+\*\*)/g);
+                return parts.map((part, j) => {
+                  if (part.startsWith('**') && part.endsWith('**')) {
+                    return <strong key={j}>{part.replace(/\*\*/g, '')}</strong>;
+                  }
+                  const codeParts = part.split(/(`[^`]+`)/g);
+                  return codeParts.map((cp, k) =>
+                    cp.startsWith('`') && cp.endsWith('`') ? (
+                      <code key={`${j}-${k}`}>{cp.replace(/`/g, '')}</code>
+                    ) : (
+                      <span key={`${j}-${k}`}>{cp}</span>
+                    )
+                  );
+                });
+              };
+
               const lines = post.content.split('\n');
-              const listGroups: { items: string[]; startIndex: number }[] = [];
-              let currentGroup: string[] | null = null;
-              let groupStart = 0;
+              const elements: ReactNode[] = [];
+              let listBuffer: string[] = [];
+
+              const flushList = (key: string) => {
+                if (listBuffer.length === 0) return;
+                elements.push(
+                  <ul key={key} className="list-disc pl-5 text-text-secondary space-y-1 mb-4">
+                    {listBuffer.map((item, j) => (
+                      <li key={j}>{renderInline(item)}</li>
+                    ))}
+                  </ul>
+                );
+                listBuffer = [];
+              };
 
               lines.forEach((line, i) => {
                 if (line.startsWith('- ')) {
-                  if (!currentGroup) {
-                    currentGroup = [];
-                    groupStart = i;
-                  }
-                  currentGroup.push(line.replace('- ', ''));
-                } else {
-                  if (currentGroup) {
-                    listGroups.push({ items: currentGroup, startIndex: groupStart });
-                    currentGroup = null;
-                  }
+                  listBuffer.push(line.replace('- ', ''));
+                  return;
+                }
+                flushList(`list-${i}`);
+
+                if (line.startsWith('## ')) {
+                  elements.push(
+                    <h2 key={i} className="text-2xl font-bold tracking-tight text-text-primary mt-12 mb-4">
+                      {line.replace('## ', '')}
+                    </h2>
+                  );
+                } else if (line.startsWith('### ')) {
+                  elements.push(
+                    <h3 key={i} className="text-xl font-bold tracking-tight text-text-primary mt-8 mb-3">
+                      {line.replace('### ', '')}
+                    </h3>
+                  );
+                } else if (line.startsWith('**') && line.endsWith('**')) {
+                  elements.push(
+                    <p key={i} className="text-text-secondary leading-relaxed mb-4">
+                      <strong>{line.replace(/\*\*/g, '')}</strong>
+                    </p>
+                  );
+                } else if (line.startsWith('*') && line.endsWith('*') && !line.startsWith('**')) {
+                  elements.push(
+                    <p key={i} className="text-text-secondary leading-relaxed mb-4">
+                      <em>{line.replace(/\*/g, '')}</em>
+                    </p>
+                  );
+                } else if (line.trim() !== '') {
+                  elements.push(
+                    <p key={i} className="text-text-secondary leading-relaxed mb-4">
+                      {renderInline(line)}
+                    </p>
+                  );
                 }
               });
-              if (currentGroup) {
-                listGroups.push({ items: currentGroup, startIndex: groupStart });
-              }
+              flushList('list-end');
 
-              return listGroups.map((group) => (
-                <ul key={`list-${group.startIndex}`}>
-                  {group.items.map((item, j) => {
-                    const parts = item.split(/(\*\*[^*]+\*\*)/g);
-                    return (
-                      <li key={j}>
-                        {parts.map((part, k) => {
-                          if (part.startsWith('**') && part.endsWith('**')) {
-                            return <strong key={k}>{part.replace(/\*\*/g, '')}</strong>;
-                          }
-                          return <span key={k}>{part}</span>;
-                        })}
-                      </li>
-                    );
-                  })}
-                </ul>
-              ));
+              return elements;
             })()}
           </motion.div>
 

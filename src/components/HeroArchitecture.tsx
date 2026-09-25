@@ -38,7 +38,7 @@ export function HeroArchitecture() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let animationId: number;
+    let animationId = 0;
     let time = 0;
 
     const resize = () => {
@@ -46,7 +46,7 @@ export function HeroArchitecture() {
       const dpr = window.devicePixelRatio || 1;
       canvas.width = rect.width * dpr;
       canvas.height = rect.height * dpr;
-      ctx.scale(dpr, dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
 
     resize();
@@ -119,10 +119,24 @@ export function HeroArchitecture() {
       animationId = requestAnimationFrame(animate);
     };
 
+    // Pause the animation loop while the canvas is scrolled off-screen
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          if (!animationId) animate();
+        } else {
+          cancelAnimationFrame(animationId);
+          animationId = 0;
+        }
+      },
+      { threshold: 0 }
+    );
+    observer.observe(canvas);
+
     // Check for reduced motion preference
     const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     if (!motionQuery.matches) {
-      animate();
+      // animate() is kicked off by the IntersectionObserver once visible
     } else {
       // Draw static version
       time = 0;
@@ -156,6 +170,7 @@ export function HeroArchitecture() {
     return () => {
       cancelAnimationFrame(animationId);
       window.removeEventListener('resize', resize);
+      observer.disconnect();
     };
   }, []);
 
